@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Challenge</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 12px rgba(0,0,0,0.2);
+  width: 420px;
+  text-align: center;
+}
+h2 { margin-bottom: 15px; }
+.option {
+  background: #f1f1f1;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.option:hover { background: #d1e7dd; }
+#timer { font-weight: bold; margin: 10px; color: #d9534f; }
+#startBtn {
+  background: #ff6f61; color: #fff; border: none;
+  padding: 10px 20px; border-radius: 8px; cursor: pointer;
+  font-size: 16px; margin-top: 10px;
+}
+#startBtn:hover { background: #e84c3d; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>Enter Quiz Code</h2>
+  <input type="text" id="quizCode" placeholder="Enter code">
+  <button id="startBtn">Start Quiz</button>
+  <div id="quiz" style="display:none;">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <div id="timer">Time: 5</div>
+  </div>
+  <div id="result" style="display:none;"></div>
+</div>
+
+<script>
+const secretCode = "VAR646734"; // Set your quiz code here
+
+// 50 Question Pool
+const questionsPool = [
+{q:"What is the capital of India?",options:["Mumbai","Delhi","Kolkata","Chennai"],answer:"Delhi"},
+{q:"2 + 2 = ?",options:["3","4","5","6"],answer:"4"},
+{q:"Which planet is known as the Red Planet?",options:["Venus","Earth","Mars","Jupiter"],answer:"Mars"},
+{q:"HTML stands for?",options:["Hyper Text Markup Language","High Tech Multi Language","Hyperlinks Text Markup Language","None"],answer:"Hyper Text Markup Language"},
+{q:"CSS is used for?",options:["Styling","Logic","Database","Networking"],answer:"Styling"},
+{q:"Who is known as Father of Computer?",options:["Charles Babbage","Newton","Einstein","Alan Turing"],answer:"Charles Babbage"},
+{q:"5 * 6 = ?",options:["30","35","40","25"],answer:"30"},
+{q:"Largest ocean?",options:["Atlantic","Pacific","Indian","Arctic"],answer:"Pacific"},
+{q:"Fastest land animal?",options:["Cheetah","Horse","Tiger","Lion"],answer:"Cheetah"},
+{q:"National fruit of India?",options:["Banana","Apple","Mango","Orange"],answer:"Mango"},
+{q:"First Prime Minister of India?",options:["Mahatma Gandhi","Nehru","Patel","Ambedkar"],answer:"Nehru"},
+{q:"Which gas do plants absorb?",options:["Oxygen","Carbon Dioxide","Nitrogen","Hydrogen"],answer:"Carbon Dioxide"},
+{q:"Who invented Telephone?",options:["Edison","Graham Bell","Tesla","Marconi"],answer:"Graham Bell"},
+{q:"Water freezes at?",options:["0°C","100°C","50°C","10°C"],answer:"0°C"},
+{q:"Which is the largest country?",options:["USA","China","Russia","India"],answer:"Russia"},
+{q:"RAM stands for?",options:["Read Access Memory","Random Access Memory","Run Active Memory","None"],answer:"Random Access Memory"},
+{q:"Binary language uses?",options:["0 and 1","A and B","True and False","X and Y"],answer:"0 and 1"},
+{q:"Which is a web browser?",options:["Google Chrome","MS Word","Photoshop","Excel"],answer:"Google Chrome"},
+{q:"Taj Mahal is in?",options:["Delhi","Agra","Jaipur","Mumbai"],answer:"Agra"},
+{q:"Shortcut for copy?",options:["Ctrl + P","Ctrl + C","Ctrl + V","Ctrl + X"],answer:"Ctrl + C"},
+{q:"National bird of India?",options:["Crow","Eagle","Peacock","Parrot"],answer:"Peacock"},
+{q:"WWW stands for?",options:["World Wide Web","World Web Wide","Wide World Web","None"],answer:"World Wide Web"},
+{q:"JavaScript is a?",options:["Markup Language","Programming Language","Database","Software"],answer:"Programming Language"},
+{q:"Sun rises in the?",options:["North","South","East","West"],answer:"East"},
+{q:"CPU is called?",options:["Brain of Computer","Heart of Computer","Memory","Device"],answer:"Brain of Computer"},
+{q:"Google was founded by?",options:["Bill Gates","Mark Zuckerberg","Larry Page & Sergey Brin","Steve Jobs"],answer:"Larry Page & Sergey Brin"},
+{q:"IPL stands for?",options:["International Premier League","Indian Premier League","Interstate Premier League","None"],answer:"Indian Premier League"},
+{q:"National currency of India?",options:["Dollar","Euro","Rupee","Yen"],answer:"Rupee"},
+{q:"Which is not a search engine?",options:["Yahoo","Bing","Google","Excel"],answer:"Excel"},
+{q:"HTML is used for?",options:["Designing web pages","Programming apps","Hacking","Drawing"],answer:"Designing web pages"},
+{q:"LAN stands for?",options:["Local Area Network","Large Access Network","Low Area Node","None"],answer:"Local Area Network"},
+{q:"Facebook was created by?",options:["Bill Gates","Mark Zuckerberg","Elon Musk","Steve Jobs"],answer:"Mark Zuckerberg"},
+{q:"National flower of India?",options:["Rose","Lily","Lotus","Tulip"],answer:"Lotus"},
+{q:"Email stands for?",options:["Electronic Mail","Easy Mail","Efficient Mail","None"],answer:"Electronic Mail"},
+{q:"Python is a?",options:["Snake","Programming Language","Car","Software"],answer:"Programming Language"},
+{q:"1 GB = ? MB",options:["512","1000","1024","2048"],answer:"1024"},
+{q:"Which is India's national game?",options:["Hockey","Cricket","Football","Kabaddi"],answer:"Hockey"},
+{q:"Which key is used to refresh?",options:["F1","F2","F5","F12"],answer:"F5"},
+{q:"Shakespeare is known as?",options:["King of Poetry","Father of Literature","Bard of Avon","Poet King"],answer:"Bard of Avon"},
+{q:"Which is the smallest continent?",options:["Asia","Australia","Europe","Antarctica"],answer:"Australia"},
+{q:"PDF stands for?",options:["Portable Document Format","Printed Document File","Program Data File","None"],answer:"Portable Document Format"},
+{q:"First Indian woman in space?",options:["Sunita Williams","Kalpana Chawla","Indira Gandhi","Pratibha Patil"],answer:"Kalpana Chawla"},
+{q:"National animal of India?",options:["Elephant","Tiger","Lion","Leopard"],answer:"Tiger"},
+{q:"Which device is output?",options:["Keyboard","Mouse","Printer","Scanner"],answer:"Printer"},
+{q:"Which is fastest memory?",options:["RAM","Cache","Hard Disk","Pen Drive"],answer:"Cache"},
+{q:"Indian flag has how many colors?",options:["2","3","4","5"],answer:"3"},
+{q:"Who wrote 'Discovery of India'?",options:["Nehru","Gandhi","Ambedkar","Tagore"],answer:"Nehru"},
+{q:"Ctrl + Z is used for?",options:["Undo","Redo","Save","Open"],answer:"Undo"},
+{q:"Which is the national tree of India?",options:["Neem","Banyan","Peepal","Mango"],answer:"Banyan"},
+{q:"Which device is input?",options:["Monitor","Printer","Mouse","Speaker"],answer:"Mouse"},
+{q:"WWW was invented by?",options:["Tim Berners-Lee","Bill Gates","Steve Jobs","Dennis Ritchie"],answer:"Tim Berners-Lee"}
+];
+
+let selectedQuestions = [];
+let currentQ = 0;
+let score = 0;
+let timer;
+let timeLeft = 5;
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  const inputCode = document.getElementById("quizCode").value;
+  if(inputCode === secretCode){
+    document.querySelector("h2").style.display="none";
+    document.getElementById("quizCode").style.display="none";
+    document.getElementById("startBtn").style.display="none";
+    document.getElementById("quiz").style.display="block";
+    startQuiz();
+  } else {
+    alert("Wrong code. Try again.");
+  }
+});
+
+function startQuiz(){
+  selectedQuestions = questionsPool.sort(()=>0.5-Math.random()).slice(0,10);
+  showQuestion();
+}
+
+function showQuestion(){
+  if(currentQ >= selectedQuestions.length){
+    endQuiz();
+    return;
+  }
+  const qObj = selectedQuestions[currentQ];
+  document.getElementById("question").innerText = qObj.q;
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+  qObj.options.forEach(opt=>{
+    const btn = document.createElement("div");
+    btn.classList.add("option");
+    btn.innerText = opt;
+    btn.onclick = ()=>checkAnswer(opt,qObj.answer,btn);
+    optionsDiv.appendChild(btn);
+  });
+
+  timeLeft = 5;
+  document.getElementById("timer").innerText = "Time: "+timeLeft;
+  clearInterval(timer);
+  timer = setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").innerText = "Time: "+timeLeft;
+    if(timeLeft <= 0){
+      clearInterval(timer);
+      showCorrectAnswer(qObj.answer);
+    }
+  },1000);
+}
+
+function checkAnswer(selected,correct,btnClicked){
+  clearInterval(timer);
+  if(selected === correct){score++;}
+  showCorrectAnswer(correct,btnClicked,selected);
+}
+
+function showCorrectAnswer(correct,btnClicked=null,selected=null){
+  const optionsDiv = document.getElementById("options");
+  Array.from(optionsDiv.children).forEach(btn=>{
+    if(btn.innerText === correct){ btn.style.backgroundColor="#d4ffd4"; }
+    else if(btnClicked && btn.innerText === selected){ btn.style.backgroundColor="#ffdada"; }
+    btn.style.pointerEvents="none";
+  });
+  setTimeout(()=>{
+    currentQ++;
+    showQuestion();
+  },2000);
+}
+
+function endQuiz(){
+  document.getElementById("quiz").style.display="none";
+  const resultDiv = document.getElementById("result");
+  resultDiv.style.display="block";
+  resultDiv.innerHTML=`<h2>Your Score: ${score}</h2>`+
+    (score>=8 ? "<p>🎉 Congrats! You win a Chocolate 🍫</p>" : "<p>Better luck next time!</p>");
+}
+</script>
+</body>
+</html>
